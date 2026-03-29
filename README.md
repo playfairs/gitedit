@@ -1,4 +1,4 @@
-# gitedit - Safe Git Commit Message Editor
+# gitedit - ~~Safe~~ Git Commit Message Editor
 
 A robust, self-contained C program that allows safe editing of Git commit messages at the raw object level. This tool provides an interactive interface for modifying commit messages while maintaining repository safety through automatic backups.
 
