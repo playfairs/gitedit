@@ -2,6 +2,9 @@
 
 A robust, self-contained C program that allows safe editing of Git commit messages at the raw object level. This tool provides an interactive interface for modifying commit messages while maintaining repository safety through automatic backups.
 
+>[!IMPORTANT]
+> I don't really like using C, so the development for this tool may be slow and as it currently stands is in a broken state, I don't recommend using this at least not on a repo you care about, if you are familiar with C, you can fork the repo and make changes, test them and then make a PR, but other than that yeah this may take a while.
+
 >[!WARNING]
 > This tool modifies Git objects directly and can potentially break your repository. While gitedit includes safety features like automatic backups, editing Git history can have serious consequences, especially for collaborative repositories. Always create backups and understand the risks before using this tool.
 
@@ -15,28 +18,6 @@ A robust, self-contained C program that allows safe editing of Git commit messag
 - **Logging**: Comprehensive logging of all actions in `gitedit.log`
 - **Branch Detection**: Automatically detects current Git branch
 - **Tip Commit Detection**: Warns when editing non-tip commits (history-changing operations)
-
-## Project Structure
-
-```
-gitedit/
-├── src/
-│   ├── main.c          # Entry point and main workflow
-│   ├── utils.c         # Helper functions (file I/O, strings, logging)
-│   ├── backup.c        # Git folder backup/restore functionality
-│   ├── git_objects.c   # Git object reading/writing with compression
-│   └── editor.c        # Interactive commit selection and editing
-├── include/
-│   ├── utils.h         # Utilities header
-│   ├── backup.h        # Backup functions header
-│   ├── git_objects.h   # Git object functions header
-│   └── editor.h        # Editor functions header
-├── deps/
-│   └── miniz.h         # Single-file zlib-compatible compression library
-├── bin/                # Compiled executable
-├── Makefile            # Build configuration
-└── README.md           # This documentation
-```
 
 ## Requirements
 
@@ -58,12 +39,16 @@ sudo apt-get install clang
 
 # Linux (CentOS/RHEL)
 sudo yum install clang
+
+# NixOS (Or Nix Run)
+nix run github:playfairs/gitedit
 ```
 
 ### Compilation
 
 ```bash
-# Clone or download the project
+git clone https://github.com/playfairs/gitedit.git
+
 cd gitedit
 
 # Build the executable
@@ -72,7 +57,7 @@ make
 # Or build with debug flags
 make debug
 
-# Install system-wide (optional)
+# Install system-wide (optional (sudo isn't required))
 sudo make install
 
 # Uninstall
@@ -122,7 +107,7 @@ gitedit --restore
 
 Before any modification, gitedit creates a complete backup of your `.git` directory:
 ```bash
-.git_backup_20240329_143022/
+.git_backup_20260329_183022/
 ```
 
 ### Tip Commit Detection
@@ -262,7 +247,7 @@ make clean
 4. Test thoroughly
 5. Submit a pull request
 
-## License
+## Licensing
 
 This project is provided as-is for educational and utility purposes. Use at your own risk.
 
