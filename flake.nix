@@ -1,88 +1,68 @@
 {
-  description = "gitedit - Safe Git commit message editor";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
-  outputs = { self, nixpkgs, flake-utils }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, ... }@inputs:
+  let
+    systems = [
+      "x86_64-linux"
+      "aarch64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
+
+    forAllSystems = f:
+      builtins.listToAttrs (map
+        (system: {
+          name = system;
+          value = f system;
+        })
+        systems);
+  in { 
+    devShells = forAllSystems (system:
       let
-        pkgs = nixpkgs.legacyPackages.${system};
-        
-        gitedit = pkgs.stdenv.mkDerivation {
-          pname = "gitedit";
-          version = "1.0.0";
-          
-          src = ./.;
-          
-          nativeBuildInputs = with pkgs; [
-            clang
-          ];
-          
-          buildInputs = with pkgs; [];
-          
-          makeFlags = [
-            "CC=clang"
-            "PREFIX=$(out)"
-          ];
-          
-          installPhase = ''
-            mkdir -p $out/bin
-            cp bin/gitedit $out/bin/
-            chmod +x $out/bin/gitedit
-          '';
-          
-          meta = with pkgs.lib; {
-            description = "Safe Git commit message editor";
-            longDescription = ''
-              A robust, self-contained C program that allows safe editing of Git 
-              commit messages at the raw object level. This tool provides an 
-              interactive interface for modifying commit messages while maintaining 
-              repository safety through automatic backups.
-            '';
-            homepage = "https://github.com/playfairs/gitedit";
-            license = licenses.unlicense;
-            platforms = platforms.linux ++ platforms.darwin;
-            mainProgram = "gitedit";
-          };
-        };
-        
-        devShell = pkgs.mkShell {
-          buildInputs = with pkgs; [
-            clang
-            gdb
-            valgrind
-          ];
-          
-          shellHook = ''
-            echo "gitedit development environment"
-            echo "Available commands:"
-            echo "  make          - Build the project"
-            echo "  make clean    - Clean build artifacts"
-            echo "  make debug    - Build with debug flags"
-            echo "  make install  - Install to system"
-          '';
-        };
-        
+        pkgs = import inputs.nixpkgs { inherit system; };
       in {
-        packages = {
-          default = gitedit;
-          gitedit = gitedit;
+        default = pkgs.mkShell {
+          nativeBuildInputs = with pkgs; [
+            miniz
+            ncurses
+            pkg-config
+          ];
+          packages = with pkgs; [
+            nasm
+            gcc
+            binutils
+            gdb
+            meson
+            ninja
+            cmake
+            clang
+            lld
+          ];
         };
-        
-        apps = {
-          gitedit = flake-utils.lib.mkApp {
-            drv = gitedit;
-            program = "gitedit";
-          };
-          default = flake-utils.lib.mkApp {
-            drv = gitedit;
-            program = "gitedit";
-          };
-        };
-        
-        devShells.default = devShell;
       });
+      packages = forAllSystems (system:
+        let
+          pkgs = import inputs.nixpkgs { inherit system; };
+        in
+        {
+          default = pkgs.stdenv.mkDerivation {
+            pname = "dev";
+            version = "0.1.0";
+            src = self;
+
+            enableParallelBuilding = true;
+            nativeBuildInputs = with pkgs; [ 
+              meson 
+              ninja 
+              miniz
+              ncurses
+              pkg-config
+            ];
+          };
+        }
+      );
+  };
 }

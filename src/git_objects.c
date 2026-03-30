@@ -1,6 +1,6 @@
 #include "../include/git_objects.h"
 #include "../include/utils.h"
-#include "../deps/miniz_simple.h"
+#include <miniz.h>
 #include <sys/stat.h>
 
 static char* decompress_git_object(const char *object_path) {

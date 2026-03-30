@@ -1,5 +1,4 @@
 #include "../include/utils.h"
-#include "../include/backup.h"
 #include "../include/git_objects.h"
 #include "../include/tui.h"
 #include "../include/editor.h"
